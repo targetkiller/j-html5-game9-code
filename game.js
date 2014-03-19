@@ -513,9 +513,9 @@ var SnailBait =  function () {
    
    // 精灵实现方法 Artist...................................................
 
-   this.runnerArtist = new SpriteSheetArtist(this.spritesheet,
-                                             this.runnerCellsRight),
+   this.runnerArtist = new SpriteSheetArtist(this.spritesheet,this.runnerCellsRight),
 
+   // 接sprites.js的第三种实现精灵方法，直接描边填充法，适用于平台。
    this.platformArtist = {
       draw: function (sprite, context) {
          var top;
@@ -535,28 +535,19 @@ var SnailBait =  function () {
       }
    },
 
-   // Sprite behaviors........................................................
+   // 精灵行为........................................................
 
-   // Runner's run behavior...................................................
+   // 小人跑步行为...................................................
 
+   // 大于动画运行速率，则调用advance()改变动画跑步帧      
    this.runBehavior = {
-      // Every runAnimationRate milliseconds, this behavior advances the
-      // runner's artist to the next frame of the spritesheet, provided the
-      // runner is not jumping or falling.
-      //
-      // This behavior is similar to the more general CycleBehavior behavior in
-      // js/behaviors. The difference is that this behavior does not advance
-      // the sprite's artist if the sprite is jumping, falling, or the
-      // runner's runAnimationRate is 0.
-
       lastAdvanceTime: 0,
-      
       execute: function(sprite, time, fps) {
          if (sprite.runAnimationRate === 0) {
             return;
          }
          
-         if (this.lastAdvanceTime === 0) {  // skip first time
+         if (this.lastAdvanceTime === 0) {
             this.lastAdvanceTime = time;
          }
          else if (time - this.lastAdvanceTime > 1000 / sprite.runAnimationRate) {
@@ -566,9 +557,10 @@ var SnailBait =  function () {
       }
    },
 
-   // Runner's jump behavior..................................................
+   // 小人跳跃行为..................................................
 
    this.jumpBehavior = {
+      // 暂停跳跃
       pause: function (sprite) {
          if (sprite.ascendAnimationTimer.isRunning()) {
             sprite.ascendAnimationTimer.pause();
@@ -577,7 +569,7 @@ var SnailBait =  function () {
             sprite.descendAnimationTimer.pause();
          }
       },
-
+      // 接触暂停
       unpause: function (sprite) {
          if (sprite.ascendAnimationTimer.isRunning()) {
             sprite.ascendAnimationTimer.unpause();
@@ -586,13 +578,13 @@ var SnailBait =  function () {
             sprite.descendAnimationTimer.unpause();
          }
       },
-
+      // 跳跃结束
       jumpIsOver: function (sprite) {
          return ! sprite.ascendAnimationTimer.isRunning() &&
                 ! sprite.descendAnimationTimer.isRunning();
       },
 
-      // Ascent...............................................................
+      // 跳跃上升阶段...............................................................
 
       isAscending: function (sprite) {
          return sprite.ascendAnimationTimer.isRunning();
@@ -614,7 +606,7 @@ var SnailBait =  function () {
          sprite.descendAnimationTimer.start();
       },
       
-      // Descents.............................................................
+      // 跳跃下降阶段.............................................................
 
       isDescending: function (sprite) {
          return sprite.descendAnimationTimer.isRunning();
@@ -644,7 +636,7 @@ var SnailBait =  function () {
          }
       },
       
-      // Execute..............................................................
+      // 控制函数..............................................................
 
       execute: function(sprite, time, fps) {
          if ( ! sprite.jumping || sprite.exploding) {
@@ -667,7 +659,7 @@ var SnailBait =  function () {
       } 
    },
 
-   // Runner's fall behavior..................................................
+   // 小人下坠行为..................................................
 
    this.fallBehavior = {
       isOutOfPlay: function (sprite) {
