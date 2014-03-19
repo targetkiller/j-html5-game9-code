@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	   <title>Snail Bait</title>
+     <meta charset="utf-8" />
+     <meta name="author" content="谭照强" />
+     <meta name="description" content="谭照强毕业设计－HTML5游戏Snail Bait" />
+     <meta name="keywords" content="SnailBait,html5,video game,css,javascript,html5 game" />  
+     <link rel='stylesheet' href='game.css'/>
+   </head>
+   <body>
+      <audio id='soundtrack'>
+        <source src='sounds/soundtrack.mp3' type='audio/mp3'>
+        <source src='sounds/soundtrack.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='chimes-sound' >
+        <source src='sounds/chimes.mp3' type='audio/mp3'>
+        <source src='sounds/chimes.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='whistle-down-sound' >
+        <source src='sounds/whistledown.mp3' type='audio/mp3'>
+        <source src='sounds/whistledown.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='thud-sound' >
+        <source src='sounds/thud.mp3' type='audio/mp3'>
+        <source src='sounds/thud.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='jump-sound' >
+        <source src='sounds/jump.mp3' type='audio/mp3'>
+        <source src='sounds/jump.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='plop-sound' >
+        <source src='sounds/plop.mp3' type='audio/mp3'>
+        <source src='sounds/plop.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='coin-sound' >
+        <source src='sounds/coin.mp3' type='audio/mp3'>
+        <source src='sounds/coin.ogg' type='audio/ogg'>
+      </audio>
+
+      <audio id='explosion-sound' >
+        <source src='sounds/explosion.mp3' type='audio/mp3'>
+        <source src='sounds/explosion.ogg' type='audio/ogg'>
+      </audio>
+
+      <div id='wrapper'>
+         <div id='toast'></div>
+         <div id='header'>
+            <div id='score'>0</div>
+            <div id='fps'></div>
+         </div>
+
+         <div id='arena'>
+            <canvas id='game-canvas' width='800' height='400'>
+               Your browser does not support HTML5 Canvas.
+            </canvas>
+
+            <div id='sound-and-music'>
+               <div class='checkbox-div'>
+                  Sound <input id='sound-checkbox' type='checkbox' checked/>
+               </div>
+          
+               <div class='checkbox-div'>
+                  Music <input id='music-checkbox' type='checkbox'/>
+               </div>
+            </div>
+
+            <div id='instructions'>
+               <div class='keys'>
+                  d / k
+                  <div class='explanation'>
+                     move left/right
+                  </div>
+               </div>
+
+               <div class='keys'>
+                  j <div class='explanation'>jump</div>
+               </div>
+
+               <div class='keys'>
+                  p <div class='explanation'>pause</div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <script src='js/sprites.js'></script>
+      <script src='js/stopwatch.js'></script>
+      <script src='js/animationTimer.js'></script>
+      <script src='js/behaviors/cycle.js'></script>
+      <script src='js/behaviors/pulse.js'></script>
+      <script src='js/behaviors/bounce.js'></script>
+      <script src='js/requestNextAnimationFrame.js'></script>
+      <script src='game.js'></script>
+  </body>
+</html>
