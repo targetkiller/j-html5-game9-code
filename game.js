@@ -662,21 +662,22 @@ var SnailBait =  function () {
    // 小人下坠行为..................................................
 
    this.fallBehavior = {
+      // 是否已经跳出游戏（下坠到没有平台的位置）
       isOutOfPlay: function (sprite) {
          return sprite.top > snailBait.TRACK_1_BASELINE;
       },
-
+      // 是否会下降到下一层平台（若跳跃高度已超过原所属平台高度）
       willFallBelowCurrentTrack: function (sprite, deltaY) {
          return sprite.top + sprite.height + deltaY >
                 snailBait.calculatePlatformTop(sprite.track);
       },
-
+      // 跌回所属平台
       fallOnPlatform: function (sprite) {
          sprite.top = snailBait.calculatePlatformTop(sprite.track) - sprite.height;
          sprite.stopFalling();
          snailBait.playSound(snailBait.thudSound);
       },
-
+      // 设置精灵当前垂直速度
       setSpriteVelocity: function (sprite) {
          var fallingElapsedTime;
 
@@ -684,11 +685,11 @@ var SnailBait =  function () {
                             (sprite.fallAnimationTimer.getElapsedTime()/1000) *
                             snailBait.PIXELS_PER_METER;
       },
-
+      // 计算垂直下降的实际速度
       calculateVerticalDrop: function (sprite, fps) {
          return sprite.velocityY / fps;
       },
-
+      // 是否在平台上
       isPlatformUnderneath: function (sprite) {
          return snailBait.isOverPlatform(sprite) !== -1;
       },
@@ -713,19 +714,22 @@ var SnailBait =  function () {
             }
             return;
          }
-
+         // 设置垂直速度，并计算转化过来的垂直位移
          this.setSpriteVelocity(sprite);
          deltaY = this.calculateVerticalDrop(sprite, fps);
                
+         // 不会掉到下一级
          if (!this.willFallBelowCurrentTrack(sprite, deltaY)) {
             sprite.top += deltaY;
          }
-         else { // will fall below current track
-
+         // 会调到下一级
+         else { 
+            // 跳回所属平台
             if (this.isPlatformUnderneath(sprite)) {
                this.fallOnPlatform(sprite);
                sprite.stopFalling();
             }
+            // 跳到下一级平台
             else {
                sprite.track--;
 
@@ -739,7 +743,7 @@ var SnailBait =  function () {
       }
    },
 
-   // Runner's collide behavior...............................................
+   // 小人碰撞检测...............................................
 
    this.collideBehavior = {
       execute: function (sprite, time, fps, context) {
@@ -755,18 +759,17 @@ var SnailBait =  function () {
             }
          }
       },
-
+      // 判断是否可能会发生碰撞
       isCandidateForCollision: function (sprite, otherSprite) {
          return sprite !== otherSprite &&
                 sprite.visible && otherSprite.visible &&
                 !sprite.exploding && !otherSprite.exploding &&
                 otherSprite.left - otherSprite.offset < sprite.left + sprite.width;
       }, 
-
+      // 碰撞情况1：与蜗牛子弹碰撞，以子弹为检测中心，检测是否会和小人重叠
+      // 方式：先描路径rect()，再用isPointInPath()判断是否在路径中
       didSnailBombCollideWithRunner: function (left, top, right, bottom,
                                          snailBomb, context) {
-         // Determine if the center of the snail bomb lies within
-         // the runner's bounding box  
 
          context.beginPath();
          context.rect(left, top, right - left, bottom - top);
@@ -775,13 +778,10 @@ var SnailBait =  function () {
                        snailBomb.left - snailBomb.offset + snailBomb.width/2,
                        snailBomb.top + snailBomb.height/2);
       },
-
+      // 碰撞情况2：与其他精灵碰撞，以小人为检测中心，检测是否会和其他精灵重叠
       didRunnerCollideWithOtherSprite: function (left, top, right, bottom,
                                                  centerX, centerY,
                                                  otherSprite, context) {
-         // Determine if either of the runner's four corners or its
-         // center lie within the other sprite's bounding box. 
-
          context.beginPath();
          context.rect(otherSprite.left - otherSprite.offset, otherSprite.top,
                       otherSprite.width, otherSprite.height);
@@ -794,7 +794,7 @@ var SnailBait =  function () {
                 context.isPointInPath(left,    bottom)  ||
                 context.isPointInPath(right,   bottom);
       },
-     
+      // 碰撞检测
       didCollide: function (sprite, otherSprite, context) {
          var MARGIN_TOP = 10,
              MARGIN_LEFT = 10,
@@ -817,17 +817,17 @@ var SnailBait =  function () {
                                                   otherSprite, context);
          }
       },
-
+      // 碰撞的处理方法
       processCollision: function (sprite, otherSprite) {
-         if (otherSprite.value) { // Modify Snail Bait sprites so they have values
-            // Keep score...
+         // 碰撞的得分处理
+         if (otherSprite.value) {
          }
-
+         // 碰撞到按钮
          if ('button' === otherSprite.type && (sprite.falling || sprite.jumping)) {
             otherSprite.visible = false;
             snailBait.playSound(snailBait.plopSound);
          }
-
+         // 碰撞到金币、蓝宝石、红宝石、蜗牛炸弹
          if ('coin'  === otherSprite.type    ||
              'sapphire' === otherSprite.type ||
              'ruby' === otherSprite.type     || 
@@ -841,19 +841,19 @@ var SnailBait =  function () {
                snailBait.playSound(snailBait.chimesSound);
             }
          }
-
+         // 碰撞到蝙蝠、蜜蜂、蜗牛、炸弹
          if ('bat' === otherSprite.type   ||
              'bee' === otherSprite.type   ||
              'snail' === otherSprite.type || 
              'snail bomb' === otherSprite.type) {
             snailBait.explode(sprite);
          }
-
+         // 碰撞到平台
          if (sprite.jumping && 'platform' === otherSprite.type) {
             this.processPlatformCollisionDuringJump(sprite, otherSprite);
          }
       },
-
+      // 碰撞到平台，则下坠
       processPlatformCollisionDuringJump: function (sprite, platform) {
          var isDescending = sprite.descendAnimationTimer.isRunning();
 
@@ -863,14 +863,14 @@ var SnailBait =  function () {
             sprite.track = platform.track; 
             sprite.top = snailBait.calculatePlatformTop(sprite.track) - sprite.height;
          }
-         else { // Collided with platform while ascending
+         else {
             snailBait.playSound(snailBait.plopSound);
             sprite.fall(); 
          }
       }
    };
 
-   // General pace behavior...................................................
+   // 踱步行为...................................................
 
    this.paceBehavior = {
       execute: function (sprite, time, fps) {
@@ -882,6 +882,7 @@ var SnailBait =  function () {
             sprite.direction = snailBait.RIGHT;
          }
 
+         // 蜗牛或精灵的踱步
          if (sprite.velocityX === 0) {
             if (sprite.type === 'snail') {
                sprite.velocityX = snailBait.SNAIL_PACE_VELOCITY;
@@ -908,7 +909,7 @@ var SnailBait =  function () {
       }
    };
 
-   // Snail shoot behavior....................................................
+   // 蜗牛发射子弹行为....................................................
 
    this.snailShootBehavior = { // sprite is the snail
       execute: function (sprite, time, fps) {
@@ -924,9 +925,9 @@ var SnailBait =  function () {
          }
       }
    };
-
+   // 蜗牛子弹移动行为
    this.snailBombMoveBehavior = {
-      execute: function(sprite, time, fps) {  // sprite is the bomb
+      execute: function(sprite, time, fps) {
          if (sprite.visible && snailBait.spriteInView(sprite)) {
             sprite.left -= snailBait.SNAIL_BOMB_VELOCITY / fps;
          }
@@ -937,8 +938,9 @@ var SnailBait =  function () {
       }
    };
 
-   // Sprites...........................................................
+   // 精灵初始化...........................................................
 
+   // 跑步小人定义
    this.runner = new Sprite('runner',           // type
                             this.runnerArtist,  // artist
                             [ this.runBehavior, // behaviors
@@ -950,18 +952,15 @@ var SnailBait =  function () {
    this.runner.width = this.RUNNER_CELLS_WIDTH;
    this.runner.height = this.RUNNER_CELLS_HEIGHT;
 
-   // All sprites.......................................................
-   // 
-   // (addSpritesToSpriteArray() adds sprites from the preceding sprite
-   // arrays to the sprites array)
-
+   // 精灵数组
    this.sprites = [ this.runner ];  
 
+   // 爆炸动画初始化
    this.explosionAnimator = new SpriteAnimator(
-      this.explosionCells,          // Animation cells
-      this.EXPLOSION_DURATION,      // Duration of the explosion
+      this.explosionCells,
+      this.EXPLOSION_DURATION,
 
-      function (sprite, animator) { // Callback after animation
+      function (sprite, animator) {
          sprite.exploding = false; 
 
          if (sprite.jumping) {
@@ -980,30 +979,33 @@ var SnailBait =  function () {
    );
 };
 
-// SnailBait's prototype --------------------------------------------------
+// SnailBait原型方法定义 --------------------------------------------------
 
 SnailBait.prototype = {
-   // Drawing..............................................................
 
+   // 总动画描绘方法..............................................................
    draw: function (now) {
+      // 设置平台速度
       this.setPlatformVelocity();
+      // 设置位移
       this.setTranslationOffsets();
-
+      // 描绘背景
       this.drawBackground();
-
+      // 更新精灵（基于时间）
       this.updateSprites(now);
+      // 描绘精灵
       this.drawSprites();
    },
-
+   // 设置平台速度
    setPlatformVelocity: function () {
       this.platformVelocity = this.bgVelocity * this.PLATFORM_VELOCITY_MULTIPLIER; 
    },
-
+   // 设置位移
    setTranslationOffsets: function () {
       this.setBackgroundTranslationOffset();
       this.setSpriteTranslationOffsets();
    },
-   
+   // 设置精灵位移
    setSpriteTranslationOffsets: function () {
       var i, sprite;
    
@@ -1017,7 +1019,7 @@ SnailBait.prototype = {
          }
       }
    },
-
+   // 设置背景位移
    setBackgroundTranslationOffset: function () {
       var offset = this.backgroundOffset + this.bgVelocity/this.fps;
    
@@ -1028,24 +1030,24 @@ SnailBait.prototype = {
          this.backgroundOffset = 0;
       }
    },
-   
+   // 描绘背景
    drawBackground: function () {
       this.context.save();
    
       this.context.globalAlpha = 1.0;
       this.context.translate(-this.backgroundOffset, 0);
    
-      // Initially onscreen:
+      // 主屏背景
       this.context.drawImage(this.background, 0, 0,
                         this.background.width, this.background.height);
    
-      // Initially offscreen:
+      // 次屏背景
       this.context.drawImage(this.background, this.background.width, 0,
                         this.background.width+1, this.background.height);
    
       this.context.restore();
    },
-   
+   // 计算fps 帧速率
    calculateFps: function (now) {
       var fps = 1000 / (now - this.lastAnimationFrameTime);
       this.lastAnimationFrameTime = now;
@@ -1057,7 +1059,7 @@ SnailBait.prototype = {
 
       return fps; 
    },
-   
+   // 计算三级平台高度
    calculatePlatformTop: function (track) {
       var top;
    
@@ -1067,26 +1069,23 @@ SnailBait.prototype = {
 
       return top;
    },
-
+   // 小人转左
    turnLeft: function () {
       this.bgVelocity = -this.BACKGROUND_VELOCITY;
       this.runner.runAnimationRate = this.RUN_ANIMATION_RATE;
       this.runnerArtist.cells = this.runnerCellsLeft;
       this.runner.direction = this.LEFT;
    },
-
+   // 小人转右   
    turnRight: function () {
       this.bgVelocity = this.BACKGROUND_VELOCITY;
       this.runner.runAnimationRate = this.RUN_ANIMATION_RATE;
       this.runnerArtist.cells = this.runnerCellsRight;
       this.runner.direction = this.RIGHT;
    },
-   
-   // Sprites..............................................................
 
+   // 准备小人行为
    equipRunner: function () {
-      // Animation rate, track, direction, velocity,
-      // position, and artist cells........................................
       
       this.runner.runAnimationRate = this.RUN_ANIMATION_INITIAL_RATE,
    
@@ -1103,7 +1102,7 @@ SnailBait.prototype = {
       this.equipRunnerForJumping();
       this.equipRunnerForFalling();
    },
-
+   // 准备下降行为
    equipRunnerForFalling: function () {
       this.runner.falling = false;
       this.runner.fallAnimationTimer = new AnimationTimer();
@@ -1121,7 +1120,7 @@ SnailBait.prototype = {
          this.fallAnimationTimer.stop();
       }
    },
-   
+   // 准备跳跃行为
    equipRunnerForJumping: function () {
       this.runner.JUMP_DURATION = this.RUNNER_JUMP_DURATION; // milliseconds
       this.runner.JUMP_HEIGHT = this.RUNNER_JUMP_HEIGHT;
@@ -1155,9 +1154,9 @@ SnailBait.prototype = {
          snailBait.playSound(snailBait.jumpWhistleSound);
       };
    },
-   
+   // 创建平台
    createPlatformSprites: function () {
-      var sprite, pd;  // Sprite, Platform data
+      var sprite, pd
    
       for (var i=0; i < this.platformData.length; ++i) {
          pd = this.platformData[i];
@@ -1181,7 +1180,7 @@ SnailBait.prototype = {
          this.platforms.push(sprite);
       }
    },
- 
+   // 爆炸
    explode: function (sprite, silent) {
       if (sprite.runAnimationRate === 0) {
          sprite.runAnimationRate = this.RUN_ANIMATION_RATE;
@@ -1193,8 +1192,8 @@ SnailBait.prototype = {
       this.explosionAnimator.start(sprite, true);  // true means sprite reappears
    },
 
-   // Animation............................................................
-
+   // 动画............................................................
+   // 动画开启
    animate: function (now) { 
       if (snailBait.paused) {
          setTimeout( function () {
@@ -1207,7 +1206,7 @@ SnailBait.prototype = {
          requestNextAnimationFrame(snailBait.animate);
       }
    },
-
+   // 切换所有行为的暂停状态
    togglePausedStateOfAllBehaviors: function () {
       var behavior;
    
@@ -1230,7 +1229,7 @@ SnailBait.prototype = {
          }
       }
    },
-
+   // 切换暂停状态
    togglePaused: function () {
       var now = +new Date();
 
@@ -1252,12 +1251,12 @@ SnailBait.prototype = {
       }
    },
 
-   // Playing sounds.......................................................
-
+   // 音效控制.......................................................
+   // 是否在播放音效
    soundIsPlaying: function (sound) {
       return !sound.ended && sound.currentTime > 0;
    },
-
+   // 播放音效
    playSound: function (sound) {
       var track, index;
 
@@ -1281,7 +1280,7 @@ SnailBait.prototype = {
          }              
       }
    },
-
+   // 初始化音效的大小
    initializeSounds: function () {
       this.soundtrack.volume          = this.SOUNDTRACK_VOLUME;
       this.jumpWhistleSound.volume    = this.JUMP_WHISTLE_VOLUME;
@@ -1293,19 +1292,24 @@ SnailBait.prototype = {
    },
 
 
-   // ------------------------- INITIALIZATION ----------------------------
-
+   // ------------------------- 初始化 ----------------------------
+   // 开始游戏
    start: function () {
+      // 创建精灵
       this.createSprites();
+      // 初始化图像
       this.initializeImages();
+      // 初始化声音
       this.initializeSounds();
+      // 准备小人
       this.equipRunner();
+      // 提示
       this.splashToast('Good Luck!');
-
-      document.getElementById('instructions').style.opacity =
+      // 减弱指令提示
+      document.getElementById('instructions').style.  opacity =
          snailBait.INSTRUCTIONS_OPACITY;
    },
-   
+   // 初始化图像
    initializeImages: function () {
       var self = this;
 
@@ -1316,14 +1320,14 @@ SnailBait.prototype = {
          self.startGame();
       };
    },
-
+   // 开启游戏
    startGame: function () {
       if (this.musicOn) {
          this.soundtrack.play();
       }
       requestNextAnimationFrame(this.animate);
    },
-
+   // 精灵定位
    positionSprites: function (sprites, spriteData) {
       var sprite;
 
@@ -1340,7 +1344,7 @@ SnailBait.prototype = {
          }
       }
    },
-
+   // 准备蜗牛和蜗牛子弹
    armSnails: function () {
       var snail,
           snailBombArtist = new SpriteSheetArtist(this.spritesheet, this.snailBombCells);
@@ -1364,6 +1368,7 @@ SnailBait.prototype = {
       }
    },
    
+   // 把精灵放进精灵数组
    addSpritesToSpriteArray: function () {
       for (var i=0; i < this.platforms.length; ++i) {
          this.sprites.push(this.platforms[i]);
@@ -1397,7 +1402,7 @@ SnailBait.prototype = {
          this.sprites.push(this.snails[i]);
       }
    },
-
+   // 创建蝙蝠精灵
    createBatSprites: function () {
       var bat,
           batArtist = new SpriteSheetArtist(this.spritesheet, this.batCells),
@@ -1413,7 +1418,7 @@ SnailBait.prototype = {
          this.bats.push(bat);
       }
    },
-
+   // 创建蜜蜂精灵
    createBeeSprites: function () {
       var bee,
           beeArtist;
@@ -1429,7 +1434,7 @@ SnailBait.prototype = {
          this.bees.push(bee);
       }
    },
-
+   // 创建按钮精灵
    createButtonSprites: function () {
       var button,
           buttonArtist = new SpriteSheetArtist(this.spritesheet,
@@ -1455,7 +1460,7 @@ SnailBait.prototype = {
          this.buttons.push(button);
       }
    },
-   
+   // 创建金币精灵
    createCoinSprites: function () {
       var coin,
           coinArtist = new SpriteSheetArtist(this.spritesheet, this.coinCells);
@@ -1469,7 +1474,7 @@ SnailBait.prototype = {
          this.coins.push(coin);
       }
    },
-   
+   // 创建蓝宝石精灵
    createSapphireSprites: function () {
       var sapphire,
           sapphireArtist = new SpriteSheetArtist(this.spritesheet, this.sapphireCells);
@@ -1488,7 +1493,7 @@ SnailBait.prototype = {
          this.sapphires.push(sapphire);
       }
    },
-   
+   // 创建红宝石精灵
    createRubySprites: function () {
       var ruby,
           rubyArtist = new SpriteSheetArtist(this.spritesheet, this.rubyCells);
@@ -1502,7 +1507,7 @@ SnailBait.prototype = {
          this.rubies.push(ruby);
       }
    },
-   
+   // 创建蜗牛精灵
    createSnailSprites: function () {
       var snail,
           snailArtist = new SpriteSheetArtist(this.spritesheet, this.snailCells);
@@ -1521,7 +1526,7 @@ SnailBait.prototype = {
          this.snails.push(snail);
       }
    },
-   
+   // 更新精灵状态
    updateSprites: function (now) {
       var sprite;
    
@@ -1533,7 +1538,7 @@ SnailBait.prototype = {
          }
       }
    },
-   
+   // 绘制精灵
    drawSprites: function() {
       var sprite;
    
@@ -1549,13 +1554,13 @@ SnailBait.prototype = {
          }
       }
    },
-   
+   // 判断精灵是否在当前屏幕
    spriteInView: function(sprite) {
       return sprite === this.runner || // runner is always visible
          (sprite.left + sprite.width > this.spriteOffset &&
           sprite.left < this.spriteOffset + this.canvas.width);   
    },
-
+   // 是否在任一平台上方
    isOverPlatform: function (sprite, track) {
       var p,
           index = -1,
@@ -1577,15 +1582,16 @@ SnailBait.prototype = {
       }
       return index;
    },
-   
+   // 把精灵放在平台上
    putSpriteOnPlatform: function(sprite, platformSprite) {
       sprite.top  = platformSprite.top - sprite.height;
       sprite.left = platformSprite.left;
       sprite.platform = platformSprite;
    },
-   
+   // 创建精灵
    createSprites: function() {  
-      this.createPlatformSprites(); // Platforms must be created first
+      // 需要先创建好平台
+      this.createPlatformSprites();
       
       this.createBatSprites();
       this.createBeeSprites();
@@ -1599,7 +1605,7 @@ SnailBait.prototype = {
 
       this.addSpritesToSpriteArray();
    },
-   
+   // 初始化精灵，包括定位和蜗牛上子弹
    initializeSprites: function() {  
       for (var i=0; i < snailBait.sprites.length; ++i) { 
          snailBait.sprites[i].offset = 0;
@@ -1616,8 +1622,8 @@ SnailBait.prototype = {
       this.armSnails();
    },
 
-   // Toast................................................................
-
+   // 提示................................................................
+   // 输出提示
    splashToast: function (text, howLong) {
       howLong = howLong || this.DEFAULT_TOAST_TIME;
 
@@ -1644,7 +1650,7 @@ SnailBait.prototype = {
    },
 };
    
-// Event processrs.......................................................
+// 键盘控制响应.......................................................
    
 window.onkeydown = function (e) {
    var key = e.keyCode;
@@ -1665,7 +1671,7 @@ window.onkeydown = function (e) {
       }
    }
 };
-
+// 丢失窗口焦点
 window.onblur = function (e) {  // pause if unpaused
    snailBait.windowHasFocus = false;
    
@@ -1673,7 +1679,7 @@ window.onblur = function (e) {  // pause if unpaused
       snailBait.togglePaused();
    }
 };
-
+// 聚焦窗口焦点
 window.onfocus = function (e) {  // unpause if paused
    var originalFont = snailBait.toast.style.fontSize;
 
@@ -1704,12 +1710,12 @@ window.onfocus = function (e) {  // unpause if paused
    }
 };
 
-// Launch game.........................................................
+// 启动游戏.........................................................
 
 var snailBait = new SnailBait();
 snailBait.start();
 
-// Sound and music controls............................................
+// 改编声音按钮............................................
 
 snailBait.soundCheckbox.onchange = function (e) {
    snailBait.soundOn = snailBait.soundCheckbox.checked;
