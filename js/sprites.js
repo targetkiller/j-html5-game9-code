@@ -10,11 +10,11 @@
 * para:artist:精灵生成方法，各有一个draw()方法表示执行生成
 * para:behaviors:精灵行为，各有一个execute()方法表示执行行为
 */
-var Sprite = function (type, artist, behaviors) {
+var Sprite = function (type, artist, behaviors, value) {
    this.type = type || '';
    this.artist = artist || undefined;
    this.behaviors = behaviors || [];
-
+   this.value = value || 0;
    this.left = 0;
    this.top = 0;
    this.width = 10;
