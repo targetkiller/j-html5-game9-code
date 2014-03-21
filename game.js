@@ -173,9 +173,30 @@ var SnailBait =  function () {
    this.bgVelocity = this.INITIAL_BACKGROUND_VELOCITY,
    this.platformVelocity,
 
+   // 游戏难度设置（精灵数目增加）
+   this.hardLevel = 1,
+
+   // 出现精灵数目
+   this.platformNum = 100,
+   this.coinNum = 40 * this.hardLevel,
+   this.sapphireNum = 20 * this.hardLevel,
+   this.rubyNum = 20 * this.hardLevel,
+   this.batNum = 20 * this.hardLevel,
+   this.beeNum = 20 * this.hardLevel,
+   this.snailNum = 7 * this.hardLevel,
+   this.buttonNum = 10 * this.hardLevel,
+   
+   // 初始化精灵对象数组
+   this.platformData = [],
+   this.coinData = [],
+   this.sapphireData = [],
+   this.rubyData = [],
+   this.batData = [],
+   this.beeData = [],
+   this.snailData = [],
+   this.buttonData = [],
+
    // 平台初始化元数据.........................................................
-   this.platformData = [],//平台对象数组
-   this.platformNum = 80,//平台数目
    this.platformRanWidth = 200,//平台随机长度
    this.platformBaseWidth = 80,//平台基础长度
    this.platformInitLeft = 10,//平台初始左边距
@@ -231,264 +252,61 @@ var SnailBait =  function () {
       }
    },
 
+
+   
    // 初始化各精灵的位置
    this.initSpritesPos = {
       execute:function(){
-
+         // -------------初始化各精灵位置-------------
+         // coin
+         for(var i = 0; i < snailBait.coinNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            snailBait.coinData.push({platformIndex:tmpPlatformIndex});
+         }
+         // sapphire
+         for(var i = 0; i < snailBait.sapphireNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            snailBait.sapphireData.push({platformIndex:tmpPlatformIndex});
+         }
+         // ruby
+         for(var i = 0; i < snailBait.rubyNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            snailBait.rubyData.push({platformIndex:tmpPlatformIndex});
+         }
+         // bat
+         for(var i = 0; i < snailBait.batNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            while(snailBait.platformData[tmpPlatformIndex].hasDanger){
+               tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            }
+            snailBait.batData.push({platformIndex:tmpPlatformIndex});
+            snailBait.platformData[tmpPlatformIndex].hasDanger = true;
+         }
+         // bee
+         for(var i = 0; i < snailBait.beeNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            while(snailBait.platformData[tmpPlatformIndex].hasDanger){
+               tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            }
+            snailBait.beeData.push({platformIndex:tmpPlatformIndex});
+            snailBait.platformData[tmpPlatformIndex].hasDanger = true;
+         }
+         // snail
+         for(var i = 0; i < snailBait.snailNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            while(snailBait.platformData[tmpPlatformIndex].hasDanger){
+               tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            }
+            snailBait.snailData.push({platformIndex:tmpPlatformIndex});
+            snailBait.platformData[tmpPlatformIndex].hasDanger = true;
+         }
+         // button
+         for(var i = 0; i < snailBait.buttonNum; i++){
+            var tmpPlatformIndex = Math.floor(Math.random()*(snailBait.platformNum-1)+1);
+            snailBait.buttonData.push({platformIndex:tmpPlatformIndex});
+         }
       }
    }
-
-   // this.platformData = [
-   //    // 第一幕.......................................................
-   //    {
-   //       left:      10,
-   //       width:     230,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(150,190,255)',
-   //       opacity:   1.0,
-   //       track:     1,
-   //       pulsate:   false,//是否闪烁脉动
-   //    },
-
-   //    {  left:      250,
-   //       width:     300,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(150,190,255)',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       pulsate:   false,
-   //    },
-
-   //    {  left:      400,
-   //       width:     125,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(250,0,0)',
-   //       opacity:   1.0,
-   //       track:     3,
-   //       pulsate:   true
-   //    },
-
-   //    {  left:      633,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(80,140,230)',
-   //       opacity:   1.0,
-   //       track:     1,
-   //       pulsate:   false,
-   //    },
-
-   //    // 第二幕.......................................................
-               
-   //    {  left:      810,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(200,200,0)',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      1025,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(80,140,230)',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      1200,
-   //       width:     125,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'aqua',
-   //       opacity:   1.0,
-   //       track:     3,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      1400,
-   //       width:     180,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(80,140,230)',
-   //       opacity:   1.0,
-   //       track:     1,
-   //       pulsate:   false,
-   //    },
-
-   //    // 第三幕.......................................................
-               
-   //    {  left:      1625,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(200,200,0)',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      1800,
-   //       width:     250,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(80,140,230)',
-   //       opacity:   1.0,
-   //       track:     1,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      2000,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'rgb(200,200,80)',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       pulsate:   false
-   //    },
-
-   //    {  left:      2100,
-   //       width:     100,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'aqua',
-   //       opacity:   1.0,
-   //       track:     3,
-   //    },
-
-
-   //    // 第四幕.......................................................
-
-   //    {  left:      2269,
-   //       width:     200,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: 'gold',
-   //       opacity:   1.0,
-   //       track:     1,
-   //    },
-
-   //    {  left:      2500,
-   //       width:     200,
-   //       height:    this.PLATFORM_HEIGHT,
-   //       fillStyle: '#2b950a',
-   //       opacity:   1.0,
-   //       track:     2,
-   //       snail:     true
-   //    },
-   // ],
-
-   // 各个蝙蝠位置数据..............................................................
-   
-   this.batData = [
-      { platformIndex: 1 },
-      { platformIndex: 5 },
-      { platformIndex: 3 },
-      { platformIndex: 11 }
-      // { left: 1150, top: this.TRACK_2_BASELINE - this.BAT_CELLS_HEIGHT },
-      // { left: 1720, top: this.TRACK_2_BASELINE - 2*this.BAT_CELLS_HEIGHT },
-      // { left: 2000, top: this.TRACK_3_BASELINE }, 
-      // { left: 2200, top: this.TRACK_3_BASELINE - this.BAT_CELLS_HEIGHT },
-      // { left: 2400, top: this.TRACK_3_BASELINE - 2*this.BAT_CELLS_HEIGHT },
-   ],
-   
-   // 各个蜜蜂位置数据..............................................................
-
-   this.beeData = [
-      { platformIndex: 2 },
-      { platformIndex: 7 },
-      { platformIndex: 9 },
-      { platformIndex: 13 },
-      { platformIndex: 22 }
-      // { left: 190,  top: 250 },
-      // { left: 350,  top: 150 },
-      // { left: 944,  top: this.TRACK_2_BASELINE - 1.25*this.BEE_CELLS_HEIGHT },
-      // { left: 1600, top: 125 },
-      // { left: 2225, top: 125 },
-      // { left: 2295, top: 275 },
-      // { left: 2450, top: 275 },
-   ],
-   
-   // 按钮依附的平台位置...........................................................
-
-   this.buttonData = [
-      { platformIndex: 2 },
-      { platformIndex: 5 },
-      { platformIndex: 9 },
-      { platformIndex: 13 },
-      { platformIndex: 5 },
-      { platformIndex: 22 }
-   ],
-
-   // 各个金币位置数据.............................................................
-
-   this.coinData = [
-      { platformIndex: 1 },
-      { platformIndex: 3 },
-      { platformIndex: 5 },
-      { platformIndex: 8 },
-      { platformIndex: 10 },
-      { platformIndex: 15 },
-      { platformIndex: 20 },
-      { platformIndex: 23 },
-      { platformIndex: 25 },
-      { platformIndex: 30 },
-      { platformIndex: 31 }
-
-      // { left: 303,  top: this.TRACK_3_BASELINE - this.COIN_CELLS_HEIGHT }, 
-      // { left: 469,  top: this.TRACK_3_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 600,  top: this.TRACK_1_BASELINE - this.COIN_CELLS_HEIGHT }, 
-      // { left: 833,  top: this.TRACK_2_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 1050, top: this.TRACK_2_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 1500, top: this.TRACK_1_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 1670, top: this.TRACK_2_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 1870, top: this.TRACK_1_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 1930, top: this.TRACK_1_BASELINE - 2*this.COIN_CELLS_HEIGHT }, 
-      // { left: 2200, top: this.TRACK_3_BASELINE - 3*this.COIN_CELLS_HEIGHT }, 
-   ],
-
-   // 各个红宝石位置数据............................................................
-
-   this.rubyData = [
-      { platformIndex: 1 },
-      { platformIndex: 3 },
-      { platformIndex: 5 },
-      { platformIndex: 8 },
-      { platformIndex: 10 },
-      { platformIndex: 15 },
-      { platformIndex: 20 },
-      { platformIndex: 23 },
-      { platformIndex: 25 },
-      { platformIndex: 30 },
-      // { left: 120,  top: this.TRACK_1_BASELINE - this.RUBY_CELLS_HEIGHT },
-      // { left: 880,  top: this.TRACK_2_BASELINE - this.RUBY_CELLS_HEIGHT },
-      // { left: 1100, top: this.TRACK_2_BASELINE - 2*this.SAPPHIRE_CELLS_HEIGHT }, 
-      // { left: 1475, top: this.TRACK_1_BASELINE - this.RUBY_CELLS_HEIGHT },
-   ],
-
-   // 各个蓝宝石位置数据.........................................................
-
-   this.sapphireData = [
-      { platformIndex: 1 },
-      { platformIndex: 3 },
-      { platformIndex: 5 },
-      { platformIndex: 8 },
-      { platformIndex: 10 },
-      { platformIndex: 15 },
-      { platformIndex: 20 },
-      { platformIndex: 23 },
-      { platformIndex: 25 },
-      { platformIndex: 30 },
-      // { left: 680,  top: this.TRACK_1_BASELINE - this.SAPPHIRE_CELLS_HEIGHT },
-      // { left: 1700, top: this.TRACK_2_BASELINE - this.SAPPHIRE_CELLS_HEIGHT },
-      // { left: 2056, top: this.TRACK_2_BASELINE - 3*this.SAPPHIRE_CELLS_HEIGHT/2 },
-      // { left: 2333, top: this.TRACK_2_BASELINE - this.SAPPHIRE_CELLS_HEIGHT },
-   ],
-
-   // 蜗牛依附的平台位置............................................................
-
-   this.snailData = [
-      { platformIndex: 7 },
-      { platformIndex: 15 },
-      { platformIndex: 22 },
-      { platformIndex: 30 },
-      { platformIndex: 45 },
-   ],
 
    // 跑步者元数据...........................................................
 
@@ -1429,6 +1247,8 @@ SnailBait.prototype = {
    start: function () {
       // 创建平台数据
       this.initPlatform.execute();
+      // 创建精灵数据（基于平台）
+      this.initSpritesPos.execute();
       // 创建精灵
       this.createSprites();
       // 初始化图像
@@ -1464,7 +1284,6 @@ SnailBait.prototype = {
    // 精灵定位
    positionSprites: function (sprites, spriteData) {
       var sprite;
-
       for (var i = 0; i < sprites.length; ++i) {
          sprite = sprites[i];
 
@@ -1736,10 +1555,11 @@ SnailBait.prototype = {
          difTop = Math.floor(Math.random()*30);
          difLeft = Math.floor(Math.random()*50);
       }
-      if ('bee'  === sprite.type    ||
+
+      else if ('bee'  === sprite.type    ||
           'bat' === sprite.type)
       {
-         // 若平台小于100，则不放置蝙蝠或蜜蜂
+         // 若平台小于150，则不放置蝙蝠或蜜蜂
          if(platformSprite.width < 150){
             sprite.visible = !sprite.visible;
             return false;
@@ -1748,16 +1568,15 @@ SnailBait.prototype = {
          difLeft = Math.floor(Math.random()*20+75);
       }
 
-      if ('snail'  === sprite.type)
+      else if ('snail'  === sprite.type)
       {
-         // 若平台小于100，则不放置蜗牛
+         // 若平台小于150，则不放置蜗牛
          if(platformSprite.width < 150){
             sprite.visible = !sprite.visible;
             return false;
          }
       }
-
-      sprite.top  = platformSprite.top - sprite.height-difTop;
+      sprite.top  = platformSprite.top - sprite.height - difTop;
       sprite.left = platformSprite.left + difLeft;
       sprite.platform = platformSprite;
    },
@@ -1779,11 +1598,10 @@ SnailBait.prototype = {
       this.addSpritesToSpriteArray();
    },
    // 初始化精灵，包括定位和蜗牛上子弹
-   initializeSprites: function() {  
+   initializeSprites: function() {
       for (var i=0; i < snailBait.sprites.length; ++i) { 
          snailBait.sprites[i].offset = 0;
       }
-
       this.positionSprites(this.bats,       this.batData);
       this.positionSprites(this.bees,       this.beeData);
       this.positionSprites(this.buttons,    this.buttonData);
