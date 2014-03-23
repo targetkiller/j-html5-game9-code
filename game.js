@@ -13,7 +13,10 @@ var SnailBait =  function () {
    this.fpsElement = document.getElementById('fps'),
    this.toast = document.getElementById('toast'),
    this.score = document.getElementById('score'),
+   this.again = document.getElementById('again'),
+   this.life = document.getElementById('life'),
    this.totalValue = score.innerHTML,
+   this.totalLife = life.innerHTML,
 
    // －－－－－－－－－－－－－－－－常量列表－－－－－－－－－－－－－－－－
 
@@ -32,7 +35,7 @@ var SnailBait =  function () {
 
    // 时间常量..........................................................
    this.BACKGROUND_VELOCITY = 35,    // pixels/second 背景移动速度
-   this.RUN_ANIMATION_RATE = 35,     // frames/second 动画运行速率
+   this.RUN_ANIMATION_RATE = 32,     // frames/second 动画运行速率
    this.RUNNER_JUMP_DURATION = 1000, // milliseconds 跳跃持续时间
    this.BUTTON_PACE_VELOCITY = 80,   // pixels/second 按钮位移速度
    this.SNAIL_PACE_VELOCITY = 50,    // pixels/second 蜗牛位移速度
@@ -52,6 +55,8 @@ var SnailBait =  function () {
 
    this.EXPLOSION_CELLS_HEIGHT = 62,//爆炸精灵高度
    this.EXPLOSION_DURATION = 500,//爆炸动画持续时间
+
+   this.RUNNER_LIVES = 3;//小人生命数
 
    this.NUM_TRACKS = 3,//平台级数
 
@@ -251,8 +256,6 @@ var SnailBait =  function () {
          });
       }
    },
-
-
    
    // 初始化各精灵的位置
    this.initSpritesPos = {
@@ -740,9 +743,9 @@ var SnailBait =  function () {
       },
       // 碰撞检测
       didCollide: function (sprite, otherSprite, context) {
-         var MARGIN_TOP = 15,
-             MARGIN_LEFT = 15,
-             MARGIN_RIGHT = 15,
+         var MARGIN_TOP = 18,
+             MARGIN_LEFT = 18,
+             MARGIN_RIGHT = 18,
              MARGIN_BOTTOM = 0;
          if ('platform'  === otherSprite.type){
             MARGIN_TOP = 0;
@@ -774,6 +777,8 @@ var SnailBait =  function () {
          }
          // 碰撞到按钮
          if ('button' === otherSprite.type && (sprite.falling || sprite.jumping)) {
+            // 拾获按钮速度加快
+            snailBait.BACKGROUND_VELOCITY += 5;
             otherSprite.visible = false;
             snailBait.playSound(snailBait.plopSound);
          }
@@ -796,6 +801,11 @@ var SnailBait =  function () {
              'bee' === otherSprite.type   ||
              'snail' === otherSprite.type || 
              'snail bomb' === otherSprite.type) {
+            snailBait.totalLife--;
+            life.innerHTML = snailBait.totalLife;
+            setTimeout(function() {
+                 loseLife();
+            }, 500)
             snailBait.explode(sprite);
          }
          // 碰撞到平台
@@ -817,6 +827,9 @@ var SnailBait =  function () {
       },
       updateScore: function(){
          score.innerHTML = snailBait.totalValue;
+      },
+      updateLife: function(){
+         life.innerHTML = snailBait.totalLife;
       }
    };
 
@@ -1139,7 +1152,11 @@ SnailBait.prototype = {
       sprite.exploding = true;
 
       this.playSound(this.explosionSound);
-      this.explosionAnimator.start(sprite, true);  // true means sprite reappears
+      this.explosionAnimator.start(sprite, true);
+
+      sprite.jumping = false;
+      sprite.falling = false;
+      
    },
 
    // 动画............................................................
@@ -1560,18 +1577,18 @@ SnailBait.prototype = {
           'bat' === sprite.type)
       {
          // 若平台小于150，则不放置蝙蝠或蜜蜂
-         if(platformSprite.width < 150){
+         if(platformSprite.width < 200){
             sprite.visible = !sprite.visible;
             return false;
          }
          difTop = Math.floor(Math.random()*15);
-         difLeft = Math.floor(Math.random()*20+75);
+         difLeft = Math.floor(Math.random()*20+100);
       }
 
       else if ('snail'  === sprite.type)
       {
          // 若平台小于150，则不放置蜗牛
-         if(platformSprite.width < 150){
+         if(platformSprite.width < 200){
             sprite.visible = !sprite.visible;
             return false;
          }
@@ -1656,7 +1673,7 @@ window.onkeydown = function (e) {
    else if (key === 75 || key === 39) { // 'k' or right arrow
       snailBait.turnRight();
    }
-   else if (key === 74) { // 'j'
+   else if (key === 74 || key === 32) { // 'j'
       if (!snailBait.runner.jumping && !snailBait.runner.falling) {
          snailBait.runner.jump();
       }
@@ -1700,6 +1717,42 @@ window.onfocus = function (e) {  // unpause if paused
       }, 1000);
    }
 };
+   // 冻结小人
+   function freezeRunner() {
+    snailBait.runner.falling = false;
+    snailBait.runner.jumping = false;
+    snailBait.runner.behaviors = [];   
+    snailBait.runnerHasMoved = false
+   }
+   // 丢失生命
+   function loseLife() {
+      snailBait.RUNNER_LIVES--;
+      if (snailBait.RUNNER_LIVES === 0) {
+         gameOver();
+      } else {
+         reset();
+      }
+   };
+   // 游戏结束
+   function gameOver() {
+      // 出现分数
+      snailBait.splashToast("Score: " + snailBait.totalValue);
+      freezeRunner();
+      snailBait.canvas.style.opacity = 0.3;
+      if (snailBait.musicCheckbox.checked) {
+         snailBait.soundtrack.pause()
+      }
+      snailBait.again.style.display="block";
+   };
+   // 游戏重置
+   function reset() {
+        this.elapsed = 0;
+        this.startTime = +new Date();
+        this.elapsedTime = undefined;
+        this.running = false;
+        this.totalPausedTime = 0;
+        this.startPause = 0
+    };
 
 // 启动游戏.........................................................
 

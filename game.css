@@ -24,6 +24,31 @@ body {
    padding: 5px;
    width: 817px;
    height: 520px;
+   position: relative;
+}
+
+#life-wrap{
+   position: absolute;
+   right: 20px;
+   top: 50px;
+   font: 20px fantasy;
+   color: #ff0;
+}
+
+#again {
+   display: none;
+   font: 35px fantasy;
+   text-align: center;
+   color: #0ff;
+   text-shadow: 2px 2px 4px rgba(0,0,80,1.0);
+   position: absolute;
+   right: 40px;
+   bottom: 60px; 
+   z-index: 9999;
+   cursor: pointer;
+}
+#again:hover{
+   color: #0dd;
 }
          
 #score {
@@ -110,6 +135,7 @@ body {
    font-size: 0.95em;
    opacity: 1.0;
    margin-top: 4px;
+   margin-left: 25px;
 }
 
 .keys {
@@ -163,3 +189,5 @@ body {
    margin-right: 20px;
    text-shadow: 1px 1px 1px blue;
 }
+
+
