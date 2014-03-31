@@ -27,14 +27,6 @@ body {
    position: relative;
 }
 
-#life-wrap{
-   position: absolute;
-   right: 20px;
-   top: 50px;
-   font: 20px fantasy;
-   color: #ff0;
-}
-
 #again {
    display: none;
    font: 35px fantasy;
@@ -91,7 +83,8 @@ body {
    box-shadow: rgba(0,0,0,0.5) 8px 8px 16px;
 }
 
-#fps {
+#fps,
+#life-wrap{
    position: absolute;
    margin-top: -45px;
    margin-left: 12px;
@@ -99,6 +92,11 @@ body {
    color: yellow;
    text-shadow: 1px 1px 1px rgb(0,0,80);
    font: bold 20px fantasy;
+}
+
+#life-wrap{
+   right: 15px;
+   margin-top: 30px;
 }
 
 #toast {
@@ -164,7 +162,7 @@ body {
 
 #sound-and-music {
    position: absolute;
-   top: 493px;
+   top: 483px;
    margin-left: 30px;
    margin-top: 12px;
    color: #ff0;

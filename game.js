@@ -681,7 +681,9 @@ var SnailBait =  function () {
 
                sprite.top += deltaY;
 
+               // 跌倒最底下，扣血
                if (sprite.track === 0) {
+                  loseLife();
                   snailBait.playSound(snailBait.fallingWhistleSound);
                }
             }
@@ -801,11 +803,7 @@ var SnailBait =  function () {
              'bee' === otherSprite.type   ||
              'snail' === otherSprite.type || 
              'snail bomb' === otherSprite.type) {
-            snailBait.totalLife--;
-            life.innerHTML = snailBait.totalLife;
-            setTimeout(function() {
-                 loseLife();
-            }, 500)
+            loseLife();
             snailBait.explode(sprite);
          }
          // 碰撞到平台
@@ -1726,9 +1724,14 @@ window.onfocus = function (e) {  // unpause if paused
    }
    // 丢失生命
    function loseLife() {
+      // 生命减一
+      snailBait.totalLife--;
+      life.innerHTML = snailBait.totalLife;
       snailBait.RUNNER_LIVES--;
       if (snailBait.RUNNER_LIVES === 0) {
-         gameOver();
+         setTimeout(function() {
+                 gameOver();
+            }, 500);
       } else {
          reset();
       }
