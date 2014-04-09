@@ -4,6 +4,7 @@
 * @content:时间秒表
 */
 
+// 构造函数
 Stopwatch = function ()  {
    this.startTime = 0;
    this.running = false;

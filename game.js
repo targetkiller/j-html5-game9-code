@@ -60,6 +60,8 @@ var SnailBait =  function () {
 
    this.NUM_TRACKS = 3,//平台级数
 
+   INSTRUCTIONS_OPACITY = 0.5,//游戏开始后提示框透明度
+
    this.PLATFORM_HEIGHT = 8,//平台高度
    this.PLATFORM_STROKE_WIDTH = 2,//平台厚度
    this.PLATFORM_STROKE_STYLE = 'rgb(0,0,0)',//平台默认颜色
@@ -1275,7 +1277,7 @@ SnailBait.prototype = {
       // 提示
       this.splashToast('Good Luck!');
       // 减弱指令提示
-      document.getElementById('instructions').style.  opacity =
+      document.getElementById('instructions').style.opacity =
          snailBait.INSTRUCTIONS_OPACITY;
    },
    // 初始化图像
@@ -1657,14 +1659,13 @@ SnailBait.prototype = {
 };
    
 // 键盘控制响应.......................................................
-   
 window.onkeydown = function (e) {
    var key = e.keyCode;
 
    if (key === 80 || (snailBait.paused && key !== 80)) {  // 'p'
       snailBait.togglePaused();
    }
-   
+
    if (key === 68 || key === 37) { // 'd' or left arrow
       snailBait.turnLeft();
    }
